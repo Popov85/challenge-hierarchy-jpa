@@ -1,28 +1,22 @@
 package com.popov.repository.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name ="department")
+@EqualsAndHashCode(exclude = {"children"})
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Department parent;
-
-    @OrderBy("name ASC")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-    private Set<Department> children;
 
     @Column(name = "name")
     private String name;
@@ -33,16 +27,31 @@ public class Department {
     @Column(name = "archived")
     private Boolean archived;
 
+    @OneToMany(mappedBy = "child")
+    private Set<DepartmentTree> children = new HashSet<>();
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Department that = (Department) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     @Override
     public String toString() {
         return "Department{" +
                 "id=" + id +
-                ", parent=" + (parent !=null ?
-                        String.valueOf(parent.getId()) : null) +
-                //", children='" + children + '\'' +
                 ", name='" + name + '\'' +
                 ", members=" + members +
                 ", archived=" + archived +
+                ", children=" + (children!=null ? children.size() : null)  +
                 '}';
     }
 }

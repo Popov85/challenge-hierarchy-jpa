@@ -1,11 +1,10 @@
 package com.popov.web;
 
+import com.popov.repository.entity.Department;
 import com.popov.service.DepartmentService;
 import com.popov.service.dto.DepartmentInDto;
 import com.popov.service.dto.DepartmentOutDto;
-import com.popov.service.dto.DepartmentOutInvertedL0Dto;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,16 +32,17 @@ public class DepartmentController {
         return ResponseEntity.ok(departmentOutDto);
     }
 
-    @GetMapping(value = "/departments/sub-tree", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public Set<DepartmentOutInvertedL0Dto> findSubTreeFromRoot() {
-        log.debug("Requested all departments sub tree from root");
-        return departmentService.findSubTreeFromRoot();
+    @GetMapping(value = "/departments/{departmentId}/sub-tree", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DepartmentOutDto> getChildrenDepartments(@PathVariable Long departmentId) {
+        log.debug("Requested all sub departments of id = {}", departmentId);
+        return ResponseEntity.ok(departmentService.getChildrenDepartments(departmentId));
     }
 
-    @GetMapping(value = "/departments/{departmentId}/sub-tree", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DepartmentOutInvertedL0Dto> findSubTreeById(@PathVariable Long departmentId) {
-        log.debug("Requested all departments sub tree with id = {}", departmentId);
-        return ResponseEntity.ok(departmentService.findSubTreeById(departmentId));
+    @GetMapping(value = "/departments/sub-tree", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Set<Department>> getTest() {
+        log.debug("Requested all sub departments from top");
+        return ResponseEntity.ok(departmentService.findAllWithChildrenFromRoot());
     }
+
+
 }
